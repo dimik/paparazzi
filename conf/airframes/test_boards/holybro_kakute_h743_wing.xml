@@ -55,10 +55,8 @@
 
     <module name="air_data"/>
 
-    <!-- micro-SD logging (uses SDCD2, set by the board module) -->
+    <!-- micro-SD logging (uses SDCD2, set by the board module; pulls in tlsf) -->
     <module name="logger_sd_chibios"/>
-    <module name="tlsf"/>
-    <module name="pprzlog"/>
 
     <!-- DroneCAN / UAVCAN companion link on CAN1 - uncomment to enable
     <module name="can"/>
