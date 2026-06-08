@@ -69,6 +69,9 @@
 #ifndef TIM12_SERVO_HZ
 #define TIM12_SERVO_HZ SERVO_HZ
 #endif
+#ifndef TIM15_SERVO_HZ
+#define TIM15_SERVO_HZ SERVO_HZ
+#endif
 
 /**
  * Print the configuration variables from the header
@@ -260,6 +263,22 @@ static PWMConfig pwmcfg12 = {
   .dier = 0
 };
 #endif
+#if USE_PWM_TIM15
+static PWMConfig pwmcfg15 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM15_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
+#endif
 
 
 void actuators_pwm_arch_init(void)
@@ -368,6 +387,9 @@ void actuators_pwm_arch_init(void)
 #endif
 #if USE_PWM_TIM12
   pwmStart(&PWMD12, &pwmcfg12);
+#endif
+#if USE_PWM_TIM15
+  pwmStart(&PWMD15, &pwmcfg15);
 #endif
 }
 

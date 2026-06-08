@@ -11,7 +11,7 @@
         - on-board barometer BMP280 is on the internal I2C4 bus at 0x76.
 
       The IMUs and CAN are added in the airframe (see notes below):
-        - ICM42688-P on SPI3, CS = SPI_SLAVE2 (PE12) -> fully supported via
+        - ICM42688-P on SPI3, CS = SPI_SLAVE2 (PE12): fully supported via
           the imu_icm42688 module. Use this as the primary IMU.
         - BMI088 on SPI1 (accel CS SPI_SLAVE0/PC8, gyro CS SPI_SLAVE1/PC9):
           Paparazzi currently only ships an I2C transport (bmi088_i2c); a SPI
@@ -21,14 +21,8 @@
         - CAN1 (FDCAN1, PD0/PD1, on-board transceiver): enable USE_CAN1 and a
           DroneCAN/uavcan module in the airframe for the companion link.
 
-      Example airframe snippet:
-        &lt;module name="imu_icm42688"&gt;
-          &lt;configure name="IMU_SPI_DEV" value="spi3"/&gt;
-          &lt;configure name="IMU_SPI_SLAVE_IDX" value="SPI_SLAVE2"/&gt;
-        &lt;/module&gt;
-        &lt;module name="logger_sd_chibios"&gt;
-          &lt;configure name="SDLOG_SDIO" value="SDCD2"/&gt;
-        &lt;/module&gt;
+      In the airframe, load the imu_icm42688 module with IMU_SPI_DEV=spi3 and
+      IMU_SPI_SLAVE_IDX=SPI_SLAVE2, plus the logger_sd_chibios module.
     </description>
   </doc>
   <dep>
