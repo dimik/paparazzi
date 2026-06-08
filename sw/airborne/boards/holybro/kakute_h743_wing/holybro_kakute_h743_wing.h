@@ -54,7 +54,7 @@
  *   ADC   : Vbat PC5  Curr PC4  Vbat2 PA3  Curr2 PA2  RSSI PC0  5V-sens PA4
  *   LED   : LED1 PC15 (blue/ACT)  LED2 PC14 (green/B-E)   (active low)
  *   GPIO  : CAM_SELECT PC13  VTX_9V_EN PE3 (9V VTX BEC, default ON)
- *           USER1 PD4  USER2 PE4   VDD_3V3_SENSORS_EN PB2 (sensor rail, ON)
+ *           IO1 PD4  IO2 PE4   VDD_3V3_SENSORS_EN PB2 (sensor rail, ON)
  *   PWM   : M1 PA8  M2 PE11 M3 PE13 M4 PE14 M5 PD14 M6 PD15 M7 PA0
  *           M8 PA1  M9 PE5  M10 PE6 M11 PB5 M12 PB0 M13 PB1 M14 PA15
  */
