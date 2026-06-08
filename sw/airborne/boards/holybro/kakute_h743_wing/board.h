@@ -59,10 +59,10 @@
 #endif
 
 /* Default battery sensing scaling (16-bit ADC).
- * Vbat divider ~11:1 (covers the 3-8S / 10-36V Vbat2 input).
- * Current scaling depends on the attached power module - calibrate per airframe. */
-#define DefaultVoltageOfAdc(adc) ((3.3f/65536.0f) * 11.00f * adc)
-#define DefaultMilliAmpereOfAdc(adc) ((3.3f/65536.0f) * 39.877f * adc)
+ * Main Vbat scale 18.18 and current scale 36.6 A/V are the ArduPilot
+ * KakuteH7-Wing defaults; calibrate per power module. (Vbat2 scale is 11.0.) */
+#define DefaultVoltageOfAdc(adc) ((3.3f/65536.0f) * 18.18f * adc)
+#define DefaultMilliAmpereOfAdc(adc) ((3.3f/65536.0f) * 36.6f  * adc)
 
 /* Battery monitoring for file closing */
 #define SDLOG_BAT_ADC ADCD1
@@ -146,7 +146,7 @@
 #define	PC10_SPI3_SCK                 10U
 #define	PC11_SPI3_MISO                11U
 #define	PC12_SPI3_MOSI                12U
-#define	PC13_PINIO1                   13U
+#define	PC13_CAM_SELECT               13U
 #define	PC14_LED2                     14U
 #define	PC15_LED1                     15U
 
@@ -154,7 +154,7 @@
 #define	PD01_CAN1_TX                  1U
 #define	PD02_UART5_RX                 2U
 #define	PD03_SPI2_SCK                 3U
-#define	PD04_PINIO3                   4U
+#define	PD04_USER1                    4U
 #define	PD05_UART2_TX                 5U
 #define	PD06_UART2_RX                 6U
 #define	PD07_SDMMC2_CMD               7U
@@ -170,8 +170,8 @@
 #define	PE00_UART8_RX                 0U
 #define	PE01_UART8_TX                 1U
 #define	PE02_VDD_BRICK_nVALID         2U
-#define	PE03_PINIO2                   3U
-#define	PE04_PINIO4                   4U
+#define	PE03_VTX_9V_EN                3U
+#define	PE04_USER2                    4U
 #define	PE05_SERVO9                   5U
 #define	PE06_SERVO10                  6U
 #define	PE07_UART7_RX                 7U
@@ -334,14 +334,14 @@
 #define	LINE_SPI3_SCK                 PAL_LINE(GPIOC, 10U)
 #define	LINE_SPI3_MISO                PAL_LINE(GPIOC, 11U)
 #define	LINE_SPI3_MOSI                PAL_LINE(GPIOC, 12U)
-#define	LINE_PINIO1                   PAL_LINE(GPIOC, 13U)
+#define	LINE_CAM_SELECT               PAL_LINE(GPIOC, 13U)
 #define	LINE_LED2                     PAL_LINE(GPIOC, 14U)
 #define	LINE_LED1                     PAL_LINE(GPIOC, 15U)
 #define	LINE_CAN1_RX                  PAL_LINE(GPIOD, 0U)
 #define	LINE_CAN1_TX                  PAL_LINE(GPIOD, 1U)
 #define	LINE_UART5_RX                 PAL_LINE(GPIOD, 2U)
 #define	LINE_SPI2_SCK                 PAL_LINE(GPIOD, 3U)
-#define	LINE_PINIO3                   PAL_LINE(GPIOD, 4U)
+#define	LINE_USER1                    PAL_LINE(GPIOD, 4U)
 #define	LINE_UART2_TX                 PAL_LINE(GPIOD, 5U)
 #define	LINE_UART2_RX                 PAL_LINE(GPIOD, 6U)
 #define	LINE_SDMMC2_CMD               PAL_LINE(GPIOD, 7U)
@@ -356,8 +356,8 @@
 #define	LINE_UART8_RX                 PAL_LINE(GPIOE, 0U)
 #define	LINE_UART8_TX                 PAL_LINE(GPIOE, 1U)
 #define	LINE_VDD_BRICK_nVALID         PAL_LINE(GPIOE, 2U)
-#define	LINE_PINIO2                   PAL_LINE(GPIOE, 3U)
-#define	LINE_PINIO4                   PAL_LINE(GPIOE, 4U)
+#define	LINE_VTX_9V_EN                PAL_LINE(GPIOE, 3U)
+#define	LINE_USER2                    PAL_LINE(GPIOE, 4U)
 #define	LINE_SERVO9                   PAL_LINE(GPIOE, 5U)
 #define	LINE_SERVO10                  PAL_LINE(GPIOE, 6U)
 #define	LINE_UART7_RX                 PAL_LINE(GPIOE, 7U)
@@ -614,7 +614,7 @@
 					 PIN_MODE_ALTERNATE(PC10_SPI3_SCK) | \
 					 PIN_MODE_ALTERNATE(PC11_SPI3_MISO) | \
 					 PIN_MODE_ALTERNATE(PC12_SPI3_MOSI) | \
-					 PIN_MODE_OUTPUT(PC13_PINIO1) | \
+					 PIN_MODE_OUTPUT(PC13_CAM_SELECT) | \
 					 PIN_MODE_OUTPUT(PC14_LED2) | \
 					 PIN_MODE_OUTPUT(PC15_LED1))
 
@@ -631,7 +631,7 @@
 					 PIN_OTYPE_PUSHPULL(PC10_SPI3_SCK) | \
 					 PIN_OTYPE_PUSHPULL(PC11_SPI3_MISO) | \
 					 PIN_OTYPE_PUSHPULL(PC12_SPI3_MOSI) | \
-					 PIN_OTYPE_PUSHPULL(PC13_PINIO1) | \
+					 PIN_OTYPE_PUSHPULL(PC13_CAM_SELECT) | \
 					 PIN_OTYPE_PUSHPULL(PC14_LED2) | \
 					 PIN_OTYPE_PUSHPULL(PC15_LED1))
 
@@ -648,7 +648,7 @@
 					 PIN_OSPEED_SPEED_HIGH(PC10_SPI3_SCK) | \
 					 PIN_OSPEED_SPEED_HIGH(PC11_SPI3_MISO) | \
 					 PIN_OSPEED_SPEED_HIGH(PC12_SPI3_MOSI) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PC13_PINIO1) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PC13_CAM_SELECT) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC14_LED2) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC15_LED1))
 
@@ -665,7 +665,7 @@
 					 PIN_PUPDR_FLOATING(PC10_SPI3_SCK) | \
 					 PIN_PUPDR_FLOATING(PC11_SPI3_MISO) | \
 					 PIN_PUPDR_FLOATING(PC12_SPI3_MOSI) | \
-					 PIN_PUPDR_FLOATING(PC13_PINIO1) | \
+					 PIN_PUPDR_FLOATING(PC13_CAM_SELECT) | \
 					 PIN_PUPDR_FLOATING(PC14_LED2) | \
 					 PIN_PUPDR_FLOATING(PC15_LED1))
 
@@ -682,7 +682,7 @@
 					 PIN_ODR_LEVEL_HIGH(PC10_SPI3_SCK) | \
 					 PIN_ODR_LEVEL_HIGH(PC11_SPI3_MISO) | \
 					 PIN_ODR_LEVEL_HIGH(PC12_SPI3_MOSI) | \
-					 PIN_ODR_LEVEL_LOW(PC13_PINIO1) | \
+					 PIN_ODR_LEVEL_LOW(PC13_CAM_SELECT) | \
 					 PIN_ODR_LEVEL_HIGH(PC14_LED2) | \
 					 PIN_ODR_LEVEL_HIGH(PC15_LED1))
 
@@ -700,7 +700,7 @@
 					 PIN_AFIO_AF(PC10_SPI3_SCK, 6) | \
 					 PIN_AFIO_AF(PC11_SPI3_MISO, 6) | \
 					 PIN_AFIO_AF(PC12_SPI3_MOSI, 6) | \
-					 PIN_AFIO_AF(PC13_PINIO1, 0) | \
+					 PIN_AFIO_AF(PC13_CAM_SELECT, 0) | \
 					 PIN_AFIO_AF(PC14_LED2, 0) | \
 					 PIN_AFIO_AF(PC15_LED1, 0))
 
@@ -708,7 +708,7 @@
 					 PIN_MODE_ALTERNATE(PD01_CAN1_TX) | \
 					 PIN_MODE_ALTERNATE(PD02_UART5_RX) | \
 					 PIN_MODE_ALTERNATE(PD03_SPI2_SCK) | \
-					 PIN_MODE_OUTPUT(PD04_PINIO3) | \
+					 PIN_MODE_OUTPUT(PD04_USER1) | \
 					 PIN_MODE_ALTERNATE(PD05_UART2_TX) | \
 					 PIN_MODE_ALTERNATE(PD06_UART2_RX) | \
 					 PIN_MODE_ALTERNATE(PD07_SDMMC2_CMD) | \
@@ -725,7 +725,7 @@
 					 PIN_OTYPE_PUSHPULL(PD01_CAN1_TX) | \
 					 PIN_OTYPE_PUSHPULL(PD02_UART5_RX) | \
 					 PIN_OTYPE_PUSHPULL(PD03_SPI2_SCK) | \
-					 PIN_OTYPE_PUSHPULL(PD04_PINIO3) | \
+					 PIN_OTYPE_PUSHPULL(PD04_USER1) | \
 					 PIN_OTYPE_PUSHPULL(PD05_UART2_TX) | \
 					 PIN_OTYPE_PUSHPULL(PD06_UART2_RX) | \
 					 PIN_OTYPE_PUSHPULL(PD07_SDMMC2_CMD) | \
@@ -742,7 +742,7 @@
 					 PIN_OSPEED_SPEED_HIGH(PD01_CAN1_TX) | \
 					 PIN_OSPEED_SPEED_HIGH(PD02_UART5_RX) | \
 					 PIN_OSPEED_SPEED_HIGH(PD03_SPI2_SCK) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PD04_PINIO3) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PD04_USER1) | \
 					 PIN_OSPEED_SPEED_HIGH(PD05_UART2_TX) | \
 					 PIN_OSPEED_SPEED_HIGH(PD06_UART2_RX) | \
 					 PIN_OSPEED_SPEED_HIGH(PD07_SDMMC2_CMD) | \
@@ -759,7 +759,7 @@
 					 PIN_PUPDR_FLOATING(PD01_CAN1_TX) | \
 					 PIN_PUPDR_PULLUP(PD02_UART5_RX) | \
 					 PIN_PUPDR_FLOATING(PD03_SPI2_SCK) | \
-					 PIN_PUPDR_FLOATING(PD04_PINIO3) | \
+					 PIN_PUPDR_FLOATING(PD04_USER1) | \
 					 PIN_PUPDR_PULLUP(PD05_UART2_TX) | \
 					 PIN_PUPDR_PULLUP(PD06_UART2_RX) | \
 					 PIN_PUPDR_PULLUP(PD07_SDMMC2_CMD) | \
@@ -776,7 +776,7 @@
 					 PIN_ODR_LEVEL_HIGH(PD01_CAN1_TX) | \
 					 PIN_ODR_LEVEL_HIGH(PD02_UART5_RX) | \
 					 PIN_ODR_LEVEL_HIGH(PD03_SPI2_SCK) | \
-					 PIN_ODR_LEVEL_LOW(PD04_PINIO3) | \
+					 PIN_ODR_LEVEL_LOW(PD04_USER1) | \
 					 PIN_ODR_LEVEL_HIGH(PD05_UART2_TX) | \
 					 PIN_ODR_LEVEL_HIGH(PD06_UART2_RX) | \
 					 PIN_ODR_LEVEL_HIGH(PD07_SDMMC2_CMD) | \
@@ -793,7 +793,7 @@
 					 PIN_AFIO_AF(PD01_CAN1_TX, 9) | \
 					 PIN_AFIO_AF(PD02_UART5_RX, 8) | \
 					 PIN_AFIO_AF(PD03_SPI2_SCK, 5) | \
-					 PIN_AFIO_AF(PD04_PINIO3, 0) | \
+					 PIN_AFIO_AF(PD04_USER1, 0) | \
 					 PIN_AFIO_AF(PD05_UART2_TX, 7) | \
 					 PIN_AFIO_AF(PD06_UART2_RX, 7) | \
 					 PIN_AFIO_AF(PD07_SDMMC2_CMD, 11))
@@ -810,8 +810,8 @@
 #define VAL_GPIOE_MODER             (PIN_MODE_ALTERNATE(PE00_UART8_RX) | \
 					 PIN_MODE_ALTERNATE(PE01_UART8_TX) | \
 					 PIN_MODE_INPUT(PE02_VDD_BRICK_nVALID) | \
-					 PIN_MODE_OUTPUT(PE03_PINIO2) | \
-					 PIN_MODE_OUTPUT(PE04_PINIO4) | \
+					 PIN_MODE_OUTPUT(PE03_VTX_9V_EN) | \
+					 PIN_MODE_OUTPUT(PE04_USER2) | \
 					 PIN_MODE_ALTERNATE(PE05_SERVO9) | \
 					 PIN_MODE_ALTERNATE(PE06_SERVO10) | \
 					 PIN_MODE_ALTERNATE(PE07_UART7_RX) | \
@@ -827,8 +827,8 @@
 #define VAL_GPIOE_OTYPER            (PIN_OTYPE_PUSHPULL(PE00_UART8_RX) | \
 					 PIN_OTYPE_PUSHPULL(PE01_UART8_TX) | \
 					 PIN_OTYPE_PUSHPULL(PE02_VDD_BRICK_nVALID) | \
-					 PIN_OTYPE_PUSHPULL(PE03_PINIO2) | \
-					 PIN_OTYPE_PUSHPULL(PE04_PINIO4) | \
+					 PIN_OTYPE_PUSHPULL(PE03_VTX_9V_EN) | \
+					 PIN_OTYPE_PUSHPULL(PE04_USER2) | \
 					 PIN_OTYPE_PUSHPULL(PE05_SERVO9) | \
 					 PIN_OTYPE_PUSHPULL(PE06_SERVO10) | \
 					 PIN_OTYPE_PUSHPULL(PE07_UART7_RX) | \
@@ -844,8 +844,8 @@
 #define VAL_GPIOE_OSPEEDR           (PIN_OSPEED_SPEED_HIGH(PE00_UART8_RX) | \
 					 PIN_OSPEED_SPEED_HIGH(PE01_UART8_TX) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PE02_VDD_BRICK_nVALID) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PE03_PINIO2) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PE04_PINIO4) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PE03_VTX_9V_EN) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PE04_USER2) | \
 					 PIN_OSPEED_SPEED_HIGH(PE05_SERVO9) | \
 					 PIN_OSPEED_SPEED_HIGH(PE06_SERVO10) | \
 					 PIN_OSPEED_SPEED_HIGH(PE07_UART7_RX) | \
@@ -861,8 +861,8 @@
 #define VAL_GPIOE_PUPDR             (PIN_PUPDR_PULLUP(PE00_UART8_RX) | \
 					 PIN_PUPDR_PULLUP(PE01_UART8_TX) | \
 					 PIN_PUPDR_FLOATING(PE02_VDD_BRICK_nVALID) | \
-					 PIN_PUPDR_FLOATING(PE03_PINIO2) | \
-					 PIN_PUPDR_FLOATING(PE04_PINIO4) | \
+					 PIN_PUPDR_FLOATING(PE03_VTX_9V_EN) | \
+					 PIN_PUPDR_FLOATING(PE04_USER2) | \
 					 PIN_PUPDR_FLOATING(PE05_SERVO9) | \
 					 PIN_PUPDR_FLOATING(PE06_SERVO10) | \
 					 PIN_PUPDR_PULLUP(PE07_UART7_RX) | \
@@ -878,8 +878,8 @@
 #define VAL_GPIOE_ODR               (PIN_ODR_LEVEL_HIGH(PE00_UART8_RX) | \
 					 PIN_ODR_LEVEL_HIGH(PE01_UART8_TX) | \
 					 PIN_ODR_LEVEL_LOW(PE02_VDD_BRICK_nVALID) | \
-					 PIN_ODR_LEVEL_HIGH(PE03_PINIO2) | \
-					 PIN_ODR_LEVEL_LOW(PE04_PINIO4) | \
+					 PIN_ODR_LEVEL_HIGH(PE03_VTX_9V_EN) | \
+					 PIN_ODR_LEVEL_LOW(PE04_USER2) | \
 					 PIN_ODR_LEVEL_LOW(PE05_SERVO9) | \
 					 PIN_ODR_LEVEL_LOW(PE06_SERVO10) | \
 					 PIN_ODR_LEVEL_HIGH(PE07_UART7_RX) | \
@@ -895,8 +895,8 @@
 #define VAL_GPIOE_AFRL		(PIN_AFIO_AF(PE00_UART8_RX, 8) | \
 					 PIN_AFIO_AF(PE01_UART8_TX, 8) | \
 					 PIN_AFIO_AF(PE02_VDD_BRICK_nVALID, 0) | \
-					 PIN_AFIO_AF(PE03_PINIO2, 0) | \
-					 PIN_AFIO_AF(PE04_PINIO4, 0) | \
+					 PIN_AFIO_AF(PE03_VTX_9V_EN, 0) | \
+					 PIN_AFIO_AF(PE04_USER2, 0) | \
 					 PIN_AFIO_AF(PE05_SERVO9, 4) | \
 					 PIN_AFIO_AF(PE06_SERVO10, 4) | \
 					 PIN_AFIO_AF(PE07_UART7_RX, 7))
@@ -1746,21 +1746,17 @@
 	LINE_SPI_SLAVE3, \
 	LINE_SPI_SLAVE0, \
 	LINE_SPI_SLAVE1, \
-	LINE_PINIO1, \
 	LINE_LED2, \
 	LINE_LED1, \
-	LINE_PINIO3, \
 	LINE_SERVO5, \
 	LINE_SERVO6, \
-	LINE_PINIO2, \
-	LINE_PINIO4, \
 	LINE_SERVO9, \
 	LINE_SERVO10, \
 	LINE_SERVO2, \
 	LINE_SPI_SLAVE2, \
 	LINE_SERVO3, \
 	LINE_SERVO4
-#define ENERGY_SAVE_INPUTS_SIZE 	 24
+#define ENERGY_SAVE_INPUTS_SIZE 	 20
 
 #define ENERGY_SAVE_LOWS \
 	LINE_BUZZER

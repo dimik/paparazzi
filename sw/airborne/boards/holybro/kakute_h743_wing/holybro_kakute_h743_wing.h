@@ -40,7 +40,7 @@
  *   SPI2  : SCK PD3  MISO PC2  MOSI PC3         -> OSD AT7456E
  *             SLAVE3 PB12 = MAX7456/AT7456E CS
  *   CAN1  : RX PD0   TX PD1                     -> DroneCAN/UAVCAN (Radxa Q6A)
- *   SD    : SDMMC2 (PB14/PB15/PB3/PB4 data, PC1 CK, PD7 CMD)
+ *   SD    : SDMMC2 (PB14/PB15/PB3/PB4 data, PC1 CK, PD7 CMD) -> ChibiOS SDCD2
  *   UART1 : TX PB6  RX PA10
  *   UART2 : TX PD5  RX PD6   (GPS)
  *   UART3 : TX PD8  RX PD9
@@ -49,9 +49,12 @@
  *   UART6 : TX PC6  RX PC7   (SBUS/RC)
  *   UART7 : TX PE8  RX PE7  (+RTS PE9 / CTS PE10)
  *   UART8 : TX PE1  RX PE0
- *   I2C1  : SCL PB8  SDA PB7   I2C2 : SCL PB10 SDA PB11   I2C4 : SCL PD12 SDA PD13 (baro)
+ *   I2C4  : SCL PD12 SDA PD13  -> onboard baro BMP280/SPL06 (internal bus)
+ *   I2C1  : SCL PB8  SDA PB7    I2C2 : SCL PB10 SDA PB11   (external connectors)
  *   ADC   : Vbat PC5  Curr PC4  Vbat2 PA3  Curr2 PA2  RSSI PC0  5V-sens PA4
- *   LED   : LED1 PC15  LED2 PC14   (active low)
+ *   LED   : LED1 PC15 (blue/ACT)  LED2 PC14 (green/B-E)   (active low)
+ *   GPIO  : CAM_SELECT PC13  VTX_9V_EN PE3 (9V VTX BEC, default ON)
+ *           USER1 PD4  USER2 PE4   VDD_3V3_SENSORS_EN PB2 (sensor rail, ON)
  *   PWM   : M1 PA8  M2 PE11 M3 PE13 M4 PE14 M5 PD14 M6 PD15 M7 PA0
  *           M8 PA1  M9 PE5  M10 PE6 M11 PB5 M12 PB0 M13 PB1 M14 PA15
  */
