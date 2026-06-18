@@ -1,0 +1,179 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<airframe name="Holybro_Kakute_H743_Wing">
+
+  <description>
+    Holybro Kakute H743-Wing bring-up / test airframe (quad-X).
+
+    Demonstrates wiring the board port:
+      - board = holybro_kakute_h743_wing
+      - primary IMU = ICM42688-P on SPI3, CS = SPI_SLAVE2 (PE12)
+      - on-board baro BMP280 on I2C4 and micro-SD on SDMMC2 come from the
+        holybro_kakute_h743_wing board module.
+      - CAN1 (FDCAN1, PD0/PD1) available for the DroneCAN companion link
+        (uncomment the can/uavcan modules to enable USE_CAN1).
+
+    NOTE: the BMI088 on SPI1 is not used - Paparazzi has no SPI transport for
+    it yet (see peripherals/bmi088_spi.*, added as untested scaffold). Fly on
+    the ICM42688. This quad config is for board bring-up only; the real Cyclone
+    tilt-body VTOL airframe (servos + INDI allocation) is separate.
+  </description>
+
+  <firmware name="rotorcraft">
+    <configure name="RTOS_DEBUG" value="0"/>
+    <configure name="PERIODIC_FREQUENCY" value="500"/>
+
+    <!-- the board module conf/modules/boards/holybro_kakute_h743_wing.xml
+         (SD on SDMMC2, baro on I2C4) is auto-loaded by board name -->
+    <target name="ap" board="holybro_kakute_h743_wing">
+    </target>
+
+    <module name="radio_control" type="sbus"/>
+
+    <module name="motor_mixing"/>
+    <module name="actuators" type="pwm">
+      <define name="SERVO_HZ" value="400"/>
+    </module>
+
+    <module name="telemetry" type="transparent">
+      <configure name="MODEM_PORT" value="usb_serial"/>
+    </module>
+
+    <module name="imu" type="icm42688">
+      <configure name="IMU_SPI_DEV" value="spi3"/>
+      <configure name="IMU_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
+    </module>
+
+    <module name="gps" type="ublox">
+      <configure name="GPS_PORT" value="UART2"/>
+    </module>
+    <configure name="USE_MAGNETOMETER" value="FALSE"/>
+
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins"/>
+
+    <module name="air_data"/>
+
+    <!-- micro-SD logging (uses SDCD2, set by the board module; pulls in tlsf) -->
+    <module name="logger_sd_chibios"/>
+
+    <!-- DroneCAN / UAVCAN companion link on CAN1 - uncomment to enable
+    <module name="can"/>
+    <module name="uavcan"><configure name="UAVCAN_USE_CAN1" value="TRUE"/></module>
+    -->
+
+    <module name="sys_mon"/>
+  </firmware>
+
+  <servos driver="Pwm">
+    <!-- quad-X on M1-M4 (PWM_SERVO_1..4, all TIM1) -->
+    <servo name="FR" no="2" min="1000" neutral="1100" max="2000"/>
+    <servo name="BL" no="3" min="1000" neutral="1100" max="2000"/>
+    <servo name="FL" no="1" min="1000" neutral="1100" max="2000"/>
+    <servo name="BR" no="4" min="1000" neutral="1100" max="2000"/>
+  </servos>
+
+  <commands>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TYPE" value="QUAD_X"/>
+  </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
+    <set servo="FL" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+    <set servo="FR" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="BR" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="BL" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
+  </command_laws>
+
+  <section name="IMU" prefix="IMU_">
+    <!-- ICM42688 mounted PITCH_180_YAW_270 per the board; adjust to airframe -->
+    <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="USE_GPS_HEADING" value="TRUE"/>
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <define name="SP_MAX_PHI" value="45." unit="deg"/>
+    <define name="SP_MAX_THETA" value="45." unit="deg"/>
+    <define name="SP_MAX_R" value="200." unit="deg/s"/>
+    <define name="DEADBAND_A" value="0"/>
+    <define name="DEADBAND_E" value="0"/>
+    <define name="DEADBAND_R" value="250"/>
+
+    <define name="REF_OMEGA_P" value="400" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.85"/>
+    <define name="REF_MAX_P" value="400." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+    <define name="REF_OMEGA_Q" value="400" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.85"/>
+    <define name="REF_MAX_Q" value="400." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+    <define name="REF_OMEGA_R" value="250" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.85"/>
+    <define name="REF_MAX_R" value="250." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+
+    <define name="PHI_PGAIN" value="500"/>
+    <define name="PHI_DGAIN" value="260"/>
+    <define name="PHI_IGAIN" value="100"/>
+    <define name="THETA_PGAIN" value="500"/>
+    <define name="THETA_DGAIN" value="260"/>
+    <define name="THETA_IGAIN" value="100"/>
+    <define name="PSI_PGAIN" value="1279"/>
+    <define name="PSI_DGAIN" value="802"/>
+    <define name="PSI_IGAIN" value="31"/>
+    <define name="PHI_DDGAIN" value="300"/>
+    <define name="THETA_DDGAIN" value="300"/>
+    <define name="PSI_DDGAIN" value="300"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP" value="150"/>
+    <define name="HOVER_KD" value="80"/>
+    <define name="HOVER_KI" value="20"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.35"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="USE_SPEED_REF" value="TRUE"/>
+    <define name="PGAIN" value="180"/>
+    <define name="DGAIN" value="180"/>
+    <define name="AGAIN" value="0"/>
+    <define name="IGAIN" value="30"/>
+  </section>
+
+  <section name="BAT">
+    <!-- 4S example; main Vbat reads through the 18.18 scale set in the board -->
+    <define name="CATASTROPHIC_BAT_LEVEL" value="12.4" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="13.2" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="14.0" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="16.8" unit="V"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+  </section>
+
+  <section name="GCS">
+    <define name="AC_ICON" value="quadrotor_x"/>
+  </section>
+
+</airframe>

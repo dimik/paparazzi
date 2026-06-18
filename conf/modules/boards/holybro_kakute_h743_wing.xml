@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="holybro_kakute_h743_wing" dir="boards">
+  <doc>
+    <description>
+      Board-specific firmware configuration for the Holybro Kakute H743-Wing.
+
+      Captures the on-board peripherals whose wiring is fixed by the board and
+      would otherwise be missed:
+        - micro-SD card is on SDMMC2 (ChibiOS SDCD2), not the SDCD1 default.
+        - on-board barometer BMP280 is on the internal I2C4 bus at 0x76.
+
+      The IMUs and CAN are added in the airframe (see notes below):
+        - ICM42688-P on SPI3, CS = SPI_SLAVE2 (PE12): fully supported via
+          the imu_icm42688 module. Use this as the primary IMU.
+        - BMI088 on SPI1 (accel CS SPI_SLAVE0/PC8, gyro CS SPI_SLAVE1/PC9):
+          Paparazzi currently only ships an I2C transport (bmi088_i2c); a SPI
+          transport (bmi088_spi) does not exist yet, so the BMI088 cannot be
+          used over SPI without adding that driver. Fly on the ICM42688.
+        - OSD AT7456E on SPI2 (CS SPI_SLAVE3/PB12): no Paparazzi driver, unused.
+        - CAN1 (FDCAN1, PD0/PD1, on-board transceiver): enable USE_CAN1 and a
+          DroneCAN/uavcan module in the airframe for the companion link.
+
+      In the airframe, load the imu_icm42688 module with IMU_SPI_DEV=spi3 and
+      IMU_SPI_SLAVE_IDX=SPI_SLAVE2, plus the logger_sd_chibios module.
+    </description>
+  </doc>
+  <dep>
+    <depends>spi_master,baro_bmp280</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <!-- micro-SD card is wired to SDMMC2 -->
+    <configure name="SDLOG_SDIO" value="SDCD2"/>
+
+    <!-- on-board baro BMP280 on internal I2C4 bus, address 0x76 -->
+    <configure name="BMP280_USE_SPI" value="FALSE"/>
+    <configure name="BMP280_DEV" value="i2c4"/>
+    <define name="BMP280_SLAVE_ADDR" value="BMP280_I2C_ADDR"/>
+  </makefile>
+</module>

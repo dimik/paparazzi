@@ -1,0 +1,65 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_bmi088_spi" dir="imu" task="sensors">
+  <doc>
+    <description>
+      IMU with BMI088 via SPI.
+
+      UNTESTED: the SPI transport (peripherals/bmi088_spi.*) was written from
+      the datasheet and has not yet been validated on hardware. Validate the
+      accel dummy-byte handling and the I2C-to-SPI mode switch before flight.
+
+      The BMI088 accel and gyro are two separate SPI slaves (two chip selects)
+      on the same SPI bus.
+    </description>
+    <configure name="IMU_BMI088_SPI_DEV" value="spi1" description="SPI device to use for BMI088"/>
+    <configure name="IMU_BMI088_GYRO_SPI_SLAVE_IDX" value="SPI_SLAVE1" description="slave index of the gyro CS"/>
+    <configure name="IMU_BMI088_ACCEL_SPI_SLAVE_IDX" value="SPI_SLAVE0" description="slave index of the accel CS"/>
+    <define name="IMU_BMI088_GYRO_RANGE" value="BMI088_GYRO_RANGE_1000" description="gyroscope range setting"/>
+    <define name="IMU_BMI088_GYRO_ODR" value="BMI088_GYRO_ODR_1000_BW_116" description="gyroscope output data rate"/>
+    <define name="IMU_BMI088_ACCEL_RANGE" value="BMI088_ACCEL_RANGE_6G" description="accelerometer range setting"/>
+    <define name="IMU_BMI088_ACCEL_ODR" value="BMI088_ACCEL_ODR_1600" description="accelerometer output data rate"/>
+    <define name="IMU_BMI088_CHAN_X" value="0" description="channel index"/>
+    <define name="IMU_BMI088_CHAN_Y" value="1" description="channel index"/>
+    <define name="IMU_BMI088_CHAN_Z" value="2" description="channel index"/>
+  </doc>
+  <dep>
+    <depends>spi_master,imu_common</depends>
+    <provides>imu</provides>
+  </dep>
+  <header>
+    <file name="imu_bmi088_spi.h"/>
+  </header>
+
+  <init fun="imu_bmi088_init()"/>
+  <periodic fun="imu_bmi088_periodic()"/>
+  <event fun="imu_bmi088_event()"/>
+
+  <makefile target="!sim|nps|fbw">
+    <configure name="IMU_BMI088_SPI_DEV" default="spi1" case="lower|upper"/>
+    <configure name="IMU_BMI088_GYRO_SPI_SLAVE_IDX" default="SPI_SLAVE1"/>
+    <configure name="IMU_BMI088_ACCEL_SPI_SLAVE_IDX" default="SPI_SLAVE0"/>
+
+    <define name="IMU_BMI088_SPI_DEV" value="$(IMU_BMI088_SPI_DEV_LOWER)"/>
+    <define name="USE_$(IMU_BMI088_SPI_DEV_UPPER)"/>
+    <define name="IMU_BMI088_GYRO_SPI_SLAVE_IDX" value="$(IMU_BMI088_GYRO_SPI_SLAVE_IDX)"/>
+    <define name="USE_$(IMU_BMI088_GYRO_SPI_SLAVE_IDX)"/>
+    <define name="IMU_BMI088_ACCEL_SPI_SLAVE_IDX" value="$(IMU_BMI088_ACCEL_SPI_SLAVE_IDX)"/>
+    <define name="USE_$(IMU_BMI088_ACCEL_SPI_SLAVE_IDX)"/>
+
+    <file name="bmi088.c" dir="peripherals"/>
+    <file name="bmi088_spi.c" dir="peripherals"/>
+    <file name="imu_bmi088_spi.c"/>
+    <test>
+      <define name="USE_SPI1"/>
+      <define name="USE_SPI_SLAVE0"/>
+      <define name="USE_SPI_SLAVE1"/>
+      <define name="IMU_BMI088_SPI_DEV" value="spi1"/>
+      <define name="IMU_BMI088_GYRO_SPI_SLAVE_IDX" value="SPI_SLAVE1"/>
+      <define name="IMU_BMI088_ACCEL_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
+  </makefile>
+</module>
